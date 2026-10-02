@@ -1,7 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
   "name": "io.github.xpex-systems-ai/xpex-plugin-factory",
-  "description": "Agent-native factory for MCP plugins and skills, with a discoverable x402 Agent Kit API at 0.01 USDC per call.",
+  "description": "MCP plugin factory and x402 Agent Kit API for external agents, at 0.01 USDC per call.",
   "repository": {
     "url": "https://github.com/xpex-systems-ai/XPeX-Plugin-Factory-",
     "source": "github"

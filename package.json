@@ -26,7 +26,7 @@
     "express": "^5.1.0",
     "jszip": "^3.10.1",
     "zod": "^4.1.11",
-    "@circle-fin/x402-batching": "^0.0.8"
+    "@circle-fin/x402-batching": "^3.5.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.3",

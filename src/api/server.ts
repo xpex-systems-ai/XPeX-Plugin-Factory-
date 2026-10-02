@@ -125,6 +125,24 @@ app.get("/pricing", (_req, res) => {
   res.type("html").send(renderPricingPage());
 });
 
+app.get("/robots.txt", (_req, res) => {
+  res.type("text/plain").send(
+    "User-agent: *\nAllow: /\nSitemap: https://xpex-plugin-factory-production.up.railway.app/sitemap.xml\n"
+  );
+});
+
+app.get("/sitemap.xml", (_req, res) => {
+  res.type("application/xml").send(
+    '<?xml version="1.0" encoding="UTF-8"?>' +
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' +
+      '<url><loc>https://xpex-plugin-factory-production.up.railway.app/</loc></url>' +
+      '<url><loc>https://xpex-plugin-factory-production.up.railway.app/pricing</loc></url>' +
+      '<url><loc>https://xpex-plugin-factory-production.up.railway.app/plugin</loc></url>' +
+      '<url><loc>https://xpex-plugin-factory-production.up.railway.app/support</loc></url>' +
+      '</urlset>'
+  );
+});
+
 app.get("/v1/schema", (_req, res) => {
   noStore(res);
   res.json({
@@ -260,7 +278,7 @@ app.get("/", (_req, res) => {
       '<div class="badge">XPEX SYSTEMS AI // FACTORY V1</div>' +
       '<h1>Build agent software, not plugin boilerplate.</h1>' +
       '<p>Blueprint → security policy → OpenAI/Codex manifest → MCP config → skills → review metadata → deterministic ZIP.</p>' +
-      '<p><a style="display:inline-block;background:#FF7A00;color:#07101f;text-decoration:none;padding:14px 18px;border-radius:10px;font-weight:900" href="/pricing">Contratar Plugin Factory</a></p>' +
+      '<p><a style="display:inline-block;background:#FF7A00;color:#07101f;text-decoration:none;padding:14px 18px;border-radius:10px;font-weight:900" href="/pricing">Começar por R$49</a></p>' +
       '<div class="grid"><div class="card"><b>01 Blueprint</b><p>Typed product, MCP, skill, review and security contract.</p></div>' +
       '<div class="card"><b>02 Guardrails</b><p>Secret scanning, HTTPS, auth checks and approval gates.</p></div>' +
       '<div class="card"><b>03 Generate</b><p>Plugin manifests, MCP configs, skills, icon and docs.</p></div>' +

@@ -4,6 +4,10 @@ Industrial plugin, MCP, skill, validation, and packaging factory by **XPeX Syste
 
 The factory compiles one strict JSON blueprint into a review-ready OpenAI/Codex plugin package.
 
+**Live Factory:** https://xpex-plugin-factory-production.up.railway.app  
+**Hire XPeX Plugin Factory:** https://xpex-plugin-factory-production.up.railway.app/pricing  
+**Readiness Audit — R$49:** https://buy.stripe.com/8x214nbyrgrpaYZ2Ah1B60f
+
 ## What it generates
 
 - `plugin.json`
@@ -148,10 +152,11 @@ Health: `/health` · Schema: `/v1/schema` · Validate: `POST /v1/validate` · Pr
 
 ## Agent-native factory access
 
-Factory V0.2 exposes a no-auth, computation-only MCP endpoint at `/mcp`.
+Factory V0.3.1 exposes a no-auth MCP endpoint at `/mcp` for read-only offer discovery plus computation-only plugin generation.
 
 Available tools:
 
+- `xpex_factory_list_offers`
 - `xpex_factory_get_schema`
 - `xpex_factory_validate_blueprint`
 - `xpex_factory_preview_plugin`

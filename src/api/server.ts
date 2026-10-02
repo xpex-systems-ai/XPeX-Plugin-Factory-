@@ -79,7 +79,7 @@ app.get("/health", (_req, res) => {
   res.json({
     ok: true,
     service: "xpex-plugin-factory",
-    version: "0.3.0",
+    version: "0.3.1",
     environment: process.env.XPEX_FACTORY_ENV ?? "development"
   });
 });

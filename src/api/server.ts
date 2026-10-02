@@ -2,6 +2,14 @@ import express from "express";
 import { ZodError } from "zod";
 import { generatePlugin, assertGenerationReady } from "../factory/generate.js";
 import { packagePlugin } from "../factory/package.js";
+import { FACTORY_OFFERS } from "../commerce/offers.js";
+import { renderPricingPage } from "../commerce/pricingPage.js";
+import {
+  extractVerifiedFactoryPayment,
+  stripeSignatureFromRequest,
+  verifyStripeWebhookSignature,
+  webhookSecretFromEnv
+} from "../commerce/stripeWebhook.js";
 import {
   getFactoryMcpDescriptor,
   handleFactoryMcp
@@ -11,6 +19,55 @@ const app = express();
 const port = Number(process.env.PORT ?? 8080);
 
 app.disable("x-powered-by");
+
+app.post(
+  "/stripe/webhook",
+  express.raw({ type: "application/json", limit: "512kb" }),
+  (req, res) => {
+    const secret = webhookSecretFromEnv();
+    const signature = stripeSignatureFromRequest(req);
+
+    if (!secret) {
+      res.status(503).json({ error: "STRIPE_WEBHOOK_NOT_CONFIGURED" });
+      return;
+    }
+
+    if (!signature || !Buffer.isBuffer(req.body)) {
+      res.status(400).json({ error: "INVALID_STRIPE_WEBHOOK_REQUEST" });
+      return;
+    }
+
+    try {
+      verifyStripeWebhookSignature(req.body, signature, secret);
+      const event = JSON.parse(req.body.toString("utf8")) as unknown;
+      const payment = extractVerifiedFactoryPayment(event);
+
+      if (payment) {
+        console.log(
+          JSON.stringify({
+            type: "xpex.factory.payment.verified",
+            ...payment
+          })
+        );
+      }
+
+      res.status(200).json({
+        received: true,
+        verifiedPayment: payment !== null
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "UNKNOWN";
+      console.warn(
+        JSON.stringify({
+          type: "xpex.factory.payment.webhook_rejected",
+          reason: message
+        })
+      );
+      res.status(400).json({ error: "INVALID_STRIPE_SIGNATURE" });
+    }
+  }
+);
+
 app.use(express.json({ limit: "1mb", strict: true }));
 
 function noStore(res: express.Response): void {
@@ -22,7 +79,7 @@ app.get("/health", (_req, res) => {
   res.json({
     ok: true,
     service: "xpex-plugin-factory",
-    version: "0.2.0",
+    version: "0.3.0",
     environment: process.env.XPEX_FACTORY_ENV ?? "development"
   });
 });
@@ -43,6 +100,31 @@ app.post("/mcp", async (req, res) => {
   res.json(result.body);
 });
 
+app.get("/v1/offers", (_req, res) => {
+  noStore(res);
+  res.json({
+    currency: "BRL",
+    provider: "Stripe",
+    livemode: true,
+    moneyTruth:
+      "Checkout creation is not revenue. Only provider-confirmed paid settlement counts as payment.",
+    offers: FACTORY_OFFERS.map((offer) => ({
+      id: offer.id,
+      name: offer.name,
+      priceBrl: offer.priceBrl,
+      priceLabel: offer.priceLabel,
+      description: offer.description,
+      includes: offer.includes,
+      featured: Boolean(offer.featured),
+      checkoutUrl: offer.paymentUrl
+    }))
+  });
+});
+
+app.get("/pricing", (_req, res) => {
+  res.type("html").send(renderPricingPage());
+});
+
 app.get("/v1/schema", (_req, res) => {
   noStore(res);
   res.json({
@@ -52,7 +134,10 @@ app.get("/v1/schema", (_req, res) => {
       validate: "POST /v1/validate",
       preview: "POST /v1/preview",
       package: "POST /v1/package",
-      mcp: "POST /mcp"
+      mcp: "POST /mcp",
+      offers: "GET /v1/offers",
+      pricing: "GET /pricing",
+      stripeWebhook: "POST /stripe/webhook"
     },
     note: "Secrets must never be placed in a blueprint."
   });
@@ -175,6 +260,7 @@ app.get("/", (_req, res) => {
       '<div class="badge">XPEX SYSTEMS AI // FACTORY V1</div>' +
       '<h1>Build agent software, not plugin boilerplate.</h1>' +
       '<p>Blueprint → security policy → OpenAI/Codex manifest → MCP config → skills → review metadata → deterministic ZIP.</p>' +
+      '<p><a style="display:inline-block;background:#FF7A00;color:#07101f;text-decoration:none;padding:14px 18px;border-radius:10px;font-weight:900" href="/pricing">Contratar Plugin Factory</a></p>' +
       '<div class="grid"><div class="card"><b>01 Blueprint</b><p>Typed product, MCP, skill, review and security contract.</p></div>' +
       '<div class="card"><b>02 Guardrails</b><p>Secret scanning, HTTPS, auth checks and approval gates.</p></div>' +
       '<div class="card"><b>03 Generate</b><p>Plugin manifests, MCP configs, skills, icon and docs.</p></div>' +

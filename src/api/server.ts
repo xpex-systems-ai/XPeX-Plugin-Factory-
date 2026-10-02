@@ -1,5 +1,5 @@
 import express from "express";
-import { createGatewayMiddleware } from "@circle-fin/x402-batching";
+import { createGatewayMiddleware } from "@circle-fin/x402-batching/server";
 import { fileURLToPath } from "node:url";
 import { createX402Router } from "../commerce/x402.js";
 import { ZodError } from "zod";

@@ -18,7 +18,20 @@ permissions:
   contents: read
 
 jobs:
-  connect:
+  langchain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install LangChain MCP client
+        run: python -m pip install 'langchain[mcp]>=1.4.0'
+      - name: Connect and call free offer tool
+        run: python examples/langchain_xpex.py
+
+  crewai:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -26,9 +39,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install framework MCP clients
-        run: python -m pip install 'langchain[mcp]>=1.4.0' 'crewai-tools[mcp]'
-      - name: LangChain connects and calls the free offer tool
-        run: python examples/langchain_xpex.py
-      - name: CrewAI connects and discovers the free offer tool
+      - name: Install CrewAI MCP client
+        run: python -m pip install 'crewai-tools[mcp]'
+      - name: Connect and discover free offer tool
         run: python examples/crewai_xpex.py

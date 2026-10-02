@@ -345,7 +345,7 @@ export async function handleFactoryMcp(body: unknown) {
         jsonrpc: "2.0",
         id: request.id ?? null,
         result: {
-          protocolVersion: "2026-07-28",
+          protocolVersion: "2025-11-25",
           capabilities: { tools: { listChanged: false } },
           serverInfo: {
             name: "xpex-plugin-factory",

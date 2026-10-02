@@ -77,11 +77,12 @@ describe("XPeX Plugin Factory MCP", () => {
       jsonrpc: "2.0",
       id: 1,
       method: "initialize",
-      params: { protocolVersion: "2026-07-28" }
+      params: { protocolVersion: "2025-11-25" }
     });
 
     expect(init.status).toBe(200);
     expect((init.body as any).result.serverInfo.name).toBe("xpex-plugin-factory");
+    expect((init.body as any).result.protocolVersion).toBe("2025-11-25");
 
     const listed = await handleFactoryMcp({
       jsonrpc: "2.0",

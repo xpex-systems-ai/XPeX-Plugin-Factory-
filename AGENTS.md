@@ -13,6 +13,7 @@ XPeX Plugin Factory is a public agent-native service for plugin packaging, MCP a
 ## Available MCP tools
 
 - xpex_factory_list_offers
+- xpex_factory_get_agent_kit_offer
 - xpex_factory_get_schema
 - xpex_factory_validate_blueprint
 - xpex_factory_preview_plugin

@@ -1,0 +1,7 @@
+{
+  "name": "XPeX Plugin Factory",
+  "description": "Agent-native plugin, MCP and skill factory with offer discovery, blueprint validation, preview and deterministic package compilation.",
+  "url": "https://xpex-plugin-factory-production.up.railway.app/mcp",
+  "transport": "streamable-http",
+  "repository": "https://github.com/xpex-systems-ai/XPeX-Plugin-Factory-"
+}

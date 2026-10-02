@@ -1,0 +1,12 @@
+{
+  "$schema": "https://agentplugins.dev/schemas/1.0.0/plugin.schema.json",
+  "name": "xpex-plugin-factory",
+  "version": "0.3.1",
+  "description": "Agent-native factory for plugin packaging, MCP architecture, reusable skills, blueprint validation, security/readiness review, and deterministic agent integration packages.",
+  "author": {
+    "name": "XPeX Systems AI"
+  },
+  "homepage": "https://xpex-plugin-factory-production.up.railway.app",
+  "repository": "https://github.com/xpex-systems-ai/XPeX-Plugin-Factory-",
+  "license": "MIT"
+}

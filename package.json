@@ -33,5 +33,16 @@
     "tsx": "^4.20.6",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
-  }
+  },
+  "mcpName": "io.github.xpex-systems-ai/xpex-plugin-factory",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ai-agents",
+    "agent-tools",
+    "plugins",
+    "skills",
+    "xpex",
+    "codex"
+  ]
 }

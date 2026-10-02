@@ -7,15 +7,20 @@ on:
       - .github/workflows/agent-framework-smoke.yml
       - examples/langchain_xpex.py
       - examples/crewai_xpex.py
+      - src/mcp/handler.ts
   pull_request:
     paths:
       - .github/workflows/agent-framework-smoke.yml
       - examples/langchain_xpex.py
       - examples/crewai_xpex.py
+      - src/mcp/handler.ts
   workflow_dispatch:
 
 permissions:
   contents: read
+
+env:
+  XPEX_MCP_URL: http://127.0.0.1:8080/mcp
 
 jobs:
   langchain:
@@ -23,9 +28,23 @@ jobs:
     timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Start Factory MCP server
+        run: |
+          npm ci
+          npm run build
+          node dist/api/server.js > /tmp/xpex-server.log 2>&1 &
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent http://127.0.0.1:8080/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/xpex-server.log
+          exit 1
       - name: Install LangChain MCP client
         run: python -m pip install 'langchain[mcp]>=1.4.0'
       - name: Connect and call free offer tool
@@ -36,9 +55,23 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Start Factory MCP server
+        run: |
+          npm ci
+          npm run build
+          node dist/api/server.js > /tmp/xpex-server.log 2>&1 &
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent http://127.0.0.1:8080/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/xpex-server.log
+          exit 1
       - name: Install CrewAI MCP client
         run: python -m pip install 'crewai-tools[mcp]'
       - name: Connect and discover free offer tool

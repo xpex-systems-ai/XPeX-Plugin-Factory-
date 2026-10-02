@@ -8,13 +8,15 @@ import { FACTORY_OFFERS } from "./offers.js";
 import { renderPricingPage } from "./pricingPage.js";
 
 describe("Factory monetization", () => {
-  it("publishes exactly three live fixed-price offers", () => {
+  it("publishes exactly four live fixed-price offers", () => {
     expect(FACTORY_OFFERS.map((offer) => offer.id)).toEqual([
+      "audit",
       "launch",
       "pro",
       "enterprise"
     ]);
     expect(FACTORY_OFFERS.map((offer) => offer.priceBrl)).toEqual([
+      49,
       197,
       497,
       1497
@@ -27,6 +29,7 @@ describe("Factory monetization", () => {
   it("renders pricing without exposing Stripe secret material", () => {
     const html = renderPricingPage();
     expect(html).toContain("Transforme seu sistema em software para agentes.");
+    expect(html).toContain("R$ 49");
     expect(html).toContain("R$ 197");
     expect(html).toContain("R$ 497");
     expect(html).toContain("R$ 1.497");
@@ -65,8 +68,37 @@ describe("Factory monetization", () => {
     ).toThrow("STRIPE_SIGNATURE_MISMATCH");
   });
 
+  it("maps the R$49 audit Payment Link to the audit offer", () => {
+    const audit = FACTORY_OFFERS.find((offer) => offer.id === "audit")!;
+    const payment = extractVerifiedFactoryPayment({
+      id: "evt_audit_paid",
+      type: "checkout.session.completed",
+      data: {
+        object: {
+          id: "cs_live_audit_paid",
+          payment_link: audit.stripePaymentLinkId,
+          payment_status: "paid",
+          amount_total: 4900,
+          currency: "brl",
+          customer_details: { email: "audit@example.com" },
+          custom_fields: [
+            { key: "project_name", text: { value: "Audit Client" } },
+            { key: "project_brief", text: { value: "Quero validar a viabilidade do meu plugin." } }
+          ]
+        }
+      }
+    });
+
+    expect(payment).toMatchObject({
+      offerId: "audit",
+      amountTotal: 4900,
+      currency: "brl",
+      projectName: "Audit Client"
+    });
+  });
+
   it("counts only paid checkout sessions as verified payments", () => {
-    const launch = FACTORY_OFFERS[0]!;
+    const launch = FACTORY_OFFERS.find((offer) => offer.id === "launch")!;
     const paid = extractVerifiedFactoryPayment({
       id: "evt_paid",
       type: "checkout.session.completed",

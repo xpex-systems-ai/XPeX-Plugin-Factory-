@@ -1,5 +1,5 @@
 export type FactoryOffer = {
-  id: "launch" | "pro" | "enterprise";
+  id: "audit" | "launch" | "pro" | "enterprise";
   name: string;
   priceBrl: number;
   priceLabel: string;
@@ -11,6 +11,24 @@ export type FactoryOffer = {
 };
 
 export const FACTORY_OFFERS: readonly FactoryOffer[] = [
+  {
+    id: "audit",
+    name: "Readiness Audit",
+    priceBrl: 49,
+    priceLabel: "R$ 49",
+    paymentUrl: "https://buy.stripe.com/8x214nbyrgrpaYZ2Ah1B60f",
+    stripePaymentLinkId: "plink_1UMB86HDcsx7lyooIAgBjj9C",
+    description:
+      "Comece com uma auditoria objetiva de viabilidade antes de investir na implementação completa do seu plugin ou agente.",
+    includes: [
+      "Análise de viabilidade da ideia",
+      "Mapa inicial de MCP e skills",
+      "Principais riscos e bloqueios",
+      "Recomendação de arquitetura",
+      "Próximo passo técnico recomendado"
+    ],
+    featured: true
+  },
   {
     id: "launch",
     name: "Launch",
@@ -43,8 +61,7 @@ export const FACTORY_OFFERS: readonly FactoryOffer[] = [
       "Design de skills e review cases",
       "Checklist de publicação",
       "Ajustes técnicos para integração"
-    ],
-    featured: true
+    ]
   },
   {
     id: "enterprise",
@@ -67,4 +84,12 @@ export const FACTORY_OFFERS: readonly FactoryOffer[] = [
 
 export function getFactoryOffer(id: string): FactoryOffer | undefined {
   return FACTORY_OFFERS.find((offer) => offer.id === id);
+}
+
+export function getFactoryOfferByPaymentLinkId(
+  paymentLinkId: string
+): FactoryOffer | undefined {
+  return FACTORY_OFFERS.find(
+    (offer) => offer.stripePaymentLinkId === paymentLinkId
+  );
 }

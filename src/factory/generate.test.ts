@@ -90,8 +90,9 @@ describe("XPeX Plugin Factory", () => {
 
   it("blocks private MCP network targets", () => {
     const raw = blueprint();
+    const server = raw.mcpServers[0]!;
     raw.mcpServers[0] = {
-      ...raw.mcpServers[0],
+      ...server,
       url: "https://127.0.0.1/mcp"
     };
 
@@ -104,8 +105,9 @@ describe("XPeX Plugin Factory", () => {
 
   it("blocks embedded secret-like credentials", () => {
     const raw = blueprint();
+    const skill = raw.skills[0]!;
     raw.skills[0] = {
-      ...raw.skills[0],
+      ...skill,
       instructions:
         "Use this forbidden fake credential only for this security test: sk-123456789012345678901234567890. Never do this in production."
     };

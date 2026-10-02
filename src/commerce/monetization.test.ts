@@ -86,6 +86,10 @@ describe("Factory monetization", () => {
             {
               key: "project_url",
               text: { value: "https://example.com" }
+            },
+            {
+              key: "project_brief",
+              text: { value: "Criar um plugin que audite URLs e gere um relatório técnico." }
             }
           ]
         }
@@ -100,7 +104,9 @@ describe("Factory monetization", () => {
       amountTotal: 19700,
       currency: "brl",
       projectName: "Acme Agent",
-      projectUrl: "https://example.com"
+      projectUrl: "https://example.com",
+      projectBrief:
+        "Criar um plugin que audite URLs e gere um relatório técnico."
     });
 
     const unpaid = extractVerifiedFactoryPayment({

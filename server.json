@@ -1,0 +1,16 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
+  "name": "io.github.xpex-systems-ai/xpex-plugin-factory",
+  "description": "Agent-native factory for MCP architecture, reusable skills, blueprint validation, readiness review and deterministic plugin packages.",
+  "repository": {
+    "url": "https://github.com/xpex-systems-ai/XPeX-Plugin-Factory-",
+    "source": "github"
+  },
+  "version": "0.3.1",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://xpex-plugin-factory-production.up.railway.app/mcp"
+    }
+  ]
+}

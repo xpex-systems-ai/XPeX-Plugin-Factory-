@@ -1,5 +1,6 @@
 import { generatePlugin, assertGenerationReady } from "../factory/generate.js";
 import { packagePlugin } from "../factory/package.js";
+import { FACTORY_OFFERS } from "../commerce/offers.js";
 
 type JsonRpcRequest = {
   jsonrpc?: unknown;
@@ -14,6 +15,24 @@ type ToolCallParams = {
 };
 
 const tools = [
+  {
+    name: "xpex_factory_list_offers",
+    title: "List XPeX Plugin Factory offers",
+    description:
+      "Return the current fixed-price XPeX Plugin Factory service offers and Stripe-hosted checkout URLs. Read-only; does not create a checkout or claim payment.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false
+    },
+    securitySchemes: [{ type: "noauth" }],
+    annotations: {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true
+    }
+  },
   {
     name: "xpex_factory_get_schema",
     title: "Get XPeX Plugin Factory schema",
@@ -131,6 +150,25 @@ function getBlueprintArgument(params: ToolCallParams): unknown {
 async function callTool(params: ToolCallParams) {
   const name = typeof params.name === "string" ? params.name : "";
 
+  if (name === "xpex_factory_list_offers") {
+    return toolResult({
+      currency: "BRL",
+      provider: "Stripe",
+      livemode: true,
+      moneyTruth:
+        "A checkout URL is not revenue. Only Stripe-confirmed paid settlement counts as payment.",
+      offers: FACTORY_OFFERS.map((offer) => ({
+        id: offer.id,
+        name: offer.name,
+        priceBrl: offer.priceBrl,
+        priceLabel: offer.priceLabel,
+        description: offer.description,
+        includes: offer.includes,
+        checkoutUrl: offer.paymentUrl
+      }))
+    });
+  }
+
   if (name === "xpex_factory_get_schema") {
     return toolResult({
       name: "XPeX Plugin Factory Blueprint",
@@ -230,14 +268,14 @@ async function callTool(params: ToolCallParams) {
 export function getFactoryMcpDescriptor() {
   return {
     name: "xpex-plugin-factory",
-    version: "0.2.0",
+    version: "0.3.1",
     protocol: "MCP Streamable HTTP",
     endpoint: "/mcp",
     transport: "streamable-http",
     authentication: "none",
     tools: tools.map((tool) => tool.name),
     scope:
-      "Blueprint validation, policy checks, preview compilation, and deterministic ZIP compilation only. No publishing or external mutation."
+      "Read-only commercial offer discovery plus blueprint validation, policy checks, preview compilation, and deterministic ZIP compilation. No publishing or privileged external mutation."
   };
 }
 
@@ -274,10 +312,10 @@ export async function handleFactoryMcp(body: unknown) {
           capabilities: { tools: { listChanged: false } },
           serverInfo: {
             name: "xpex-plugin-factory",
-            version: "0.2.0"
+            version: "0.3.1"
           },
           instructions:
-            "Compile plugin artifacts from explicit blueprints. Never place credentials or private user data in a blueprint. This MCP does not publish plugins or mutate external systems."
+            "Discover XPeX Factory service offers or compile plugin artifacts from explicit blueprints. Never place credentials or private user data in a blueprint. Listing an offer or returning a checkout URL never means payment occurred."
         }
       }
     };

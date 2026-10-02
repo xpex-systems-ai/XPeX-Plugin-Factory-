@@ -72,7 +72,7 @@ function blueprint() {
 }
 
 describe("XPeX Plugin Factory MCP", () => {
-  it("initializes and lists four no-auth read-only tools", async () => {
+  it("initializes and lists five no-auth read-only tools", async () => {
     const init = await handleFactoryMcp({
       jsonrpc: "2.0",
       id: 1,
@@ -90,13 +90,38 @@ describe("XPeX Plugin Factory MCP", () => {
     });
 
     const tools = (listed.body as any).result.tools;
-    expect(tools).toHaveLength(4);
+    expect(tools).toHaveLength(5);
     expect(tools.every((tool: any) => tool.annotations.readOnlyHint === true)).toBe(true);
     expect(
       tools.every((tool: any) =>
         tool.securitySchemes.some((scheme: any) => scheme.type === "noauth")
       )
     ).toBe(true);
+  });
+
+  it("returns live Factory offers without creating payment state", async () => {
+    const response = await handleFactoryMcp({
+      jsonrpc: "2.0",
+      id: 3,
+      method: "tools/call",
+      params: {
+        name: "xpex_factory_list_offers",
+        arguments: {}
+      }
+    });
+
+    const result = (response.body as any).result;
+    expect(result.isError).toBe(false);
+    expect(result.structuredContent.livemode).toBe(true);
+    expect(result.structuredContent.offers.map((offer: any) => offer.id)).toEqual([
+      "audit",
+      "launch",
+      "pro",
+      "enterprise"
+    ]);
+    expect(result.structuredContent.offers[0].priceBrl).toBe(49);
+    expect(result.structuredContent.offers[0].checkoutUrl).toMatch(/^https:\/\/buy\.stripe\.com\//);
+    expect(result.structuredContent.moneyTruth).toContain("Only Stripe-confirmed paid settlement");
   });
 
   it("validates a safe blueprint", async () => {

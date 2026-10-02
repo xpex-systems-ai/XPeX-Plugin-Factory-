@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import type { Request } from "express";
-import { getFactoryOffer } from "./offers.js";
+import { getFactoryOfferByPaymentLinkId } from "./offers.js";
 
 const DEFAULT_TOLERANCE_SECONDS = 300;
 
@@ -119,9 +119,7 @@ export function extractVerifiedFactoryPayment(event: unknown): VerifiedFactoryPa
   const offer =
     paymentLinkId === null
       ? undefined
-      : ["launch", "pro", "enterprise"]
-          .map((id) => getFactoryOffer(id))
-          .find((candidate) => candidate?.stripePaymentLinkId === paymentLinkId);
+      : getFactoryOfferByPaymentLinkId(paymentLinkId);
 
   return {
     eventId: root.id,

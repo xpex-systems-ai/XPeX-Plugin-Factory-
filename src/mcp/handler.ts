@@ -1,6 +1,8 @@
 import { generatePlugin, assertGenerationReady } from "../factory/generate.js";
 import { packagePlugin } from "../factory/package.js";
 import { FACTORY_OFFERS } from "../commerce/offers.js";
+import { agentKitExample } from "../commerce/agentKit.js";
+import { AGENT_KIT_PATH, AGENT_KIT_PRICE, readX402Config } from "../commerce/x402.js";
 
 type JsonRpcRequest = {
   jsonrpc?: unknown;
@@ -15,6 +17,20 @@ type ToolCallParams = {
 };
 
 const tools = [
+  {
+    name: "xpex_factory_get_agent_kit_offer",
+    title: "Discover the x402 Agent Kit API",
+    description:
+      "Return the live x402 Agent Kit terms, OpenAPI URL, and example input. Discovery only: does not authorize payment or generate a kit.",
+    inputSchema: { type: "object", properties: {}, additionalProperties: false },
+    securitySchemes: [{ type: "noauth" }],
+    annotations: {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: false
+    }
+  },
   {
     name: "xpex_factory_list_offers",
     title: "List XPeX Plugin Factory offers",
@@ -150,6 +166,27 @@ function getBlueprintArgument(params: ToolCallParams): unknown {
 async function callTool(params: ToolCallParams) {
   const name = typeof params.name === "string" ? params.name : "";
 
+  if (name === "xpex_factory_get_agent_kit_offer") {
+    const config = readX402Config();
+    const baseUrl = (process.env.XPEX_FACTORY_PUBLIC_URL || "https://xpex-plugin-factory-production.up.railway.app").replace(/\/$/, "");
+    return toolResult({
+      product: "MCP Plugin Starter Kit",
+      enabled: config !== null,
+      method: "POST",
+      endpoint: `${baseUrl}${AGENT_KIT_PATH}`,
+      openapi: `${baseUrl}/openapi.json`,
+      paymentDiscovery: `${baseUrl}/v1/x402`,
+      protocol: "x402 v2",
+      price: AGENT_KIT_PRICE,
+      currency: "USDC",
+      network: config?.network ?? null,
+      sellerAddress: config?.sellerAddress ?? null,
+      example: agentKitExample,
+      paymentInstructions:
+        "Inspect the HTTP 402 PAYMENT-REQUIRED challenge and require the buyer's authorization before sending a compatible PAYMENT-SIGNATURE. A 402 response or this offer is not proof of payment."
+    });
+  }
+
   if (name === "xpex_factory_list_offers") {
     return toolResult({
       currency: "BRL",
@@ -268,14 +305,14 @@ async function callTool(params: ToolCallParams) {
 export function getFactoryMcpDescriptor() {
   return {
     name: "xpex-plugin-factory",
-    version: "0.3.1",
+    version: "0.4.1",
     protocol: "MCP Streamable HTTP",
     endpoint: "/mcp",
     transport: "streamable-http",
     authentication: "none",
     tools: tools.map((tool) => tool.name),
     scope:
-      "Read-only commercial offer discovery plus blueprint validation, policy checks, preview compilation, and deterministic ZIP compilation. No publishing or privileged external mutation."
+      "Read-only commercial and x402 offer discovery plus blueprint validation, policy checks, preview compilation, and deterministic ZIP compilation. No publishing or privileged external mutation."
   };
 }
 
@@ -312,10 +349,10 @@ export async function handleFactoryMcp(body: unknown) {
           capabilities: { tools: { listChanged: false } },
           serverInfo: {
             name: "xpex-plugin-factory",
-            version: "0.3.1"
+            version: "0.4.1"
           },
           instructions:
-            "Discover XPeX Factory service offers or compile plugin artifacts from explicit blueprints. Never place credentials or private user data in a blueprint. Listing an offer or returning a checkout URL never means payment occurred."
+            "Discover XPeX Factory service offers and the x402 Agent Kit API, or compile plugin artifacts from explicit blueprints. Never place credentials or private user data in a blueprint. Listing an offer or returning a checkout URL never means payment occurred."
         }
       }
     };

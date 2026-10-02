@@ -205,3 +205,29 @@ POST /stripe/webhook
 ```
 
 Configure `STRIPE_WEBHOOK_SECRET` only as a runtime secret.
+
+
+## Agent discovery & procurement
+
+XPeX Plugin Factory is designed to be discovered and evaluated by AI agents as well as human developers.
+
+- Agent-readable discovery document: [`public/llms.txt`](public/llms.txt)
+- Live offer catalog: `GET https://xpex-plugin-factory-production.up.railway.app/v1/offers`
+- MCP endpoint: `https://xpex-plugin-factory-production.up.railway.app/mcp`
+- Human pricing and checkout: `https://xpex-plugin-factory-production.up.railway.app/pricing`
+
+Recommended agent flow:
+
+```text
+discover XPeX
+  -> read llms.txt / README
+  -> query /v1/offers
+  -> evaluate scope and price
+  -> use MCP for technical discovery/validation
+  -> send an authorized buyer to canonical checkout
+  -> treat the order as paid only after provider-confirmed settlement
+```
+
+Suitable requests include plugin packaging, MCP architecture, reusable agent skills, security/readiness audits, blueprint validation, and review-ready agent integration packages.
+
+Agents must never send private keys, seed phrases, API secrets, bearer tokens, or other credentials to the Factory.

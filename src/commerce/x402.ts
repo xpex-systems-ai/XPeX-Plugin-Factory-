@@ -61,7 +61,7 @@ export function createX402Router(env: NodeJS.ProcessEnv = process.env) {
   router.get("/openapi.json", (_req, res) => {
     res.json({
       openapi: "3.1.0",
-      info: { title: "XPeX Agent API", version: "1.0.0", description: "Deterministic read-only MCP/plugin starter kits. 0.01 USDC per call via x402 and Circle Gateway. Existing free blueprint APIs and human Stripe services remain available." },
+      info: { title: "XPeX Agent API", version: "1.0.0", description: "Deterministic read-only MCP/plugin starter kits. 0.01 USDC per call via x402 and Circle Gateway. Existing free blueprint APIs and human Stripe services remain available.", "x-guidance": "Use POST /v1/x402/agent-kit with a public HTTPS MCP URL and product details. Inspect the 402 challenge and authorize payment before retrying with PAYMENT-SIGNATURE." },
       servers: [{ url: publicUrl }],
       paths: {
         [AGENT_KIT_PATH]: { post: {
@@ -69,6 +69,7 @@ export function createX402Router(env: NodeJS.ProcessEnv = process.env) {
           summary: "Generate a read-only MCP/plugin starter ZIP with integrity hash",
           description: "Provide your public MCP endpoint and product details. Returns blueprint, files, policy report and base64 ZIP. Deterministic templates; no LLM calls, endpoint verification or publication. Invalid inputs are rejected before any payment. Send PAYMENT-SIGNATURE only after inspecting the 402 challenge.",
           "x-payment": terms,
+          "x-payment-info": { price: { mode: "fixed", currency: "USD", amount: AGENT_KIT_PRICE }, protocols: [{ x402: {} }] },
           parameters: [{ in: "header", name: "PAYMENT-SIGNATURE", required: false, schema: { type: "string" }, description: "Base64 x402 v2 payment authorization, created by a compatible buyer wallet." }],
           requestBody: { required: true, content: { "application/json": { schema: z.toJSONSchema(agentKitSchema), example: agentKitExample } } },
           responses: {
@@ -92,6 +93,11 @@ export function createX402Router(env: NodeJS.ProcessEnv = process.env) {
   router.post(AGENT_KIT_PATH, async (req, res, next) => {
     if (!gateway) { res.status(503).json({ error: "X402_NOT_ENABLED" }); return; }
     try {
+      // Discovery clients probe without an input body. A no-signature probe may
+      // inspect the 402 terms, but cannot buy or receive an artifact.
+      const emptyProbe = req.headers["payment-signature"] === undefined &&
+        (!req.body || (typeof req.body === "object" && !Array.isArray(req.body) && Object.keys(req.body).length === 0));
+      if (emptyProbe) { res.locals.x402DiscoveryProbe = true; next(); return; }
       // Prepare the complete deliverable before asking the provider to charge.
       const prepared = await prepareAgentKit(req.body);
       if (!prepared.ok) { res.status(422).json({ error: "FACTORY_POLICY_BLOCKED", report: prepared.report }); return; }
@@ -114,6 +120,7 @@ export function createX402Router(env: NodeJS.ProcessEnv = process.env) {
     // No grant-access or recovery hooks: only provider-accepted payments pass.
     void gateway!.require(`$${AGENT_KIT_PRICE}`)(req, res, next);
   }, (req, res) => {
+    if (res.locals.x402DiscoveryProbe) { res.status(503).json({ error: "DISCOVERY_PROBE_NO_DELIVERY" }); return; }
     const payment = (req as PaymentRequest).payment;
     if (!payment?.verified || payment.amount !== "10000" || payment.network !== config?.network) {
       res.status(503).json({ error: "PAYMENT_RECEIPT_UNAVAILABLE" }); return;

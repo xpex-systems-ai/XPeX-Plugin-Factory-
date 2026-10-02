@@ -97,6 +97,15 @@ describe("x402 seller gate (simulated Circle provider; no funds)", () => {
     expect(await response.json()).toEqual({});
     expect(providerCalls.map((call) => call.url)).toEqual(["https://gateway-api.circle.com/v1/x402/supported"]);
   });
+  it("lets an unauthenticated empty discovery probe inspect the 402 without a kit", async () => {
+    await start();
+    const response = await request(undefined, {});
+    expect(response.status).toBe(402);
+    expect(response.headers.has("payment-required")).toBe(true);
+    expect(await response.json()).not.toHaveProperty("archive");
+    expect(providerCalls.every((call) => call.url.endsWith("/supported"))).toBe(true);
+    expect((await request(header(), {})).status).toBe(400);
+  });
   it("rejects malformed payment headers without contacting the provider", async () => {
     await start();
     expect((await request("malformed")).status).toBe(400);

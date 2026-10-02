@@ -1,4 +1,6 @@
 import express from "express";
+import { fileURLToPath } from "node:url";
+import { createX402Router } from "../commerce/x402.js";
 import { ZodError } from "zod";
 import { generatePlugin, assertGenerationReady } from "../factory/generate.js";
 import { packagePlugin } from "../factory/package.js";
@@ -69,6 +71,13 @@ app.post(
 );
 
 app.use(express.json({ limit: "1mb", strict: true }));
+app.use(createX402Router());
+// Serve only intentional public assets, including the MCP discovery document.
+app.use("/.well-known", express.static(fileURLToPath(new URL("../../public/.well-known", import.meta.url))));
+app.use(express.static(fileURLToPath(new URL("../../public", import.meta.url))));
+app.get("/openapi.yaml", (_req, res) => {
+  res.sendFile(fileURLToPath(new URL("../../openapi.yaml", import.meta.url)));
+});
 
 function noStore(res: express.Response): void {
   res.setHeader("Cache-Control", "no-store");
@@ -79,7 +88,7 @@ app.get("/health", (_req, res) => {
   res.json({
     ok: true,
     service: "xpex-plugin-factory",
-    version: "0.3.1",
+    version: "0.4.0",
     environment: process.env.XPEX_FACTORY_ENV ?? "development"
   });
 });
@@ -155,7 +164,10 @@ app.get("/v1/schema", (_req, res) => {
       mcp: "POST /mcp",
       offers: "GET /v1/offers",
       pricing: "GET /pricing",
-      stripeWebhook: "POST /stripe/webhook"
+      stripeWebhook: "POST /stripe/webhook",
+      agentKit: "POST /v1/x402/agent-kit",
+      agentPayments: "GET /v1/x402",
+      openapi: "GET /openapi.json"
     },
     note: "Secrets must never be placed in a blueprint."
   });

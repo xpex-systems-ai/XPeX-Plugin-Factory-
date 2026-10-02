@@ -231,3 +231,7 @@ discover XPeX
 Suitable requests include plugin packaging, MCP architecture, reusable agent skills, security/readiness audits, blueprint validation, and review-ready agent integration packages.
 
 Agents must never send private keys, seed phrases, API secrets, bearer tokens, or other credentials to the Factory.
+
+## Agent API — USDC per call
+
+`POST /v1/x402/agent-kit` generates a deterministic read-only MCP/plugin starter kit for **0.01 USDC**. Deliverables: blueprint, files, policy report, ZIP and SHA-256. See [live configuration](https://xpex-plugin-factory-production.up.railway.app/v1/x402), [OpenAPI](https://xpex-plugin-factory-production.up.railway.app/openapi.json), and [integration/runbook](docs/AGENT-PAYMENTS.md). Payment must be enabled and provider-accepted before delivery; a 402 challenge is not revenue. Existing full-blueprint APIs remain free.

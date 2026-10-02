@@ -162,13 +162,16 @@ The MCP surface never publishes plugins and never mutates third-party systems. Z
 
 ## Monetization V1
 
-The Factory sells three one-time implementation services through Stripe-hosted Payment Links:
+The Factory sells four one-time services through Stripe-hosted Payment Links:
 
 | Offer | Price | Purpose |
 | --- | ---: | --- |
+| Readiness Audit | R$ 49 | Feasibility, architecture risks, MCP/skill fit, recommended next step |
 | Launch | R$ 197 | Blueprint review + validated plugin package |
 | Pro | R$ 497 | Custom MCP/skill architecture + review readiness |
 | Enterprise | R$ 1.497 | Advanced business integration architecture |
+
+The R$49 Readiness Audit is the low-friction entry product for prospects who want a concrete technical answer before committing to full implementation.
 
 Live sales surface:
 

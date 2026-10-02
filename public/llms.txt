@@ -8,6 +8,22 @@ Offers API: https://xpex-plugin-factory-production.up.railway.app/v1/offers
 MCP endpoint: https://xpex-plugin-factory-production.up.railway.app/mcp
 Repository: https://github.com/xpex-systems-ai/XPeX-Plugin-Factory-
 
+## Pay-per-call Agent API
+
+- OpenAPI: https://xpex-plugin-factory-production.up.railway.app/openapi.json
+- Live payment configuration: https://xpex-plugin-factory-production.up.railway.app/v1/x402
+- Endpoint: POST /v1/x402/agent-kit
+- Product: MCP Plugin Starter Kit, US$0.01 in USDC per accepted call.
+- Input: product name, description, developer, public MCP URL, homepage/support/privacy/terms URLs.
+- Output: read-only starter blueprint, generated files, policy report, base64 ZIP and SHA-256.
+- Deterministic templates; no LLM, endpoint probing, deployment or marketplace approval included.
+- Inspect enabled/mode/network in /v1/x402 before purchasing. Mainnet accepts Base via Circle Gateway; testnet mode has no real monetary value.
+- An unpaid valid request returns HTTP 402 with PAYMENT-REQUIRED. A compatible buyer signs payment locally and retries with PAYMENT-SIGNATURE.
+- The buyer needs a funded Circle Gateway balance. Never transmit a wallet private key or seed to this API.
+- Inputs and package generation are checked before payment. Delivery requires provider-accepted settlement and includes PAYMENT-RESPONSE.
+- Gateway acceptance is distinct from on-chain confirmation and withdrawal. HTTP 402 alone is not payment.
+- Existing free APIs accept a complete blueprint; the paid API assembles a starter from a smaller product specification.
+
 ## Services for agents and builders
 
 - Readiness Audit — R$49: feasibility, architecture risks, MCP/skill fit, recommended next step.

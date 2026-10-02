@@ -1,0 +1,9 @@
+{
+  "$schema": "https://agentplugins.dev/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "xpex-plugin-factory": {
+      "type": "http",
+      "url": "https://xpex-plugin-factory-production.up.railway.app/mcp"
+    }
+  }
+}

@@ -1,0 +1,184 @@
+openapi: 3.1.0
+info:
+  title: XPeX Plugin Factory API
+  version: 0.1.0
+  description: Compile validated plugin blueprints into OpenAI/Codex plugin packages.
+paths:
+  /health:
+    get:
+      operationId: health
+      responses:
+        "200":
+          description: Factory readiness.
+  /v1/schema:
+    get:
+      operationId: schemaInfo
+      responses:
+        "200":
+          description: Blueprint contract summary.
+  /v1/validate:
+    post:
+      operationId: validateBlueprint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PluginBlueprint"
+      responses:
+        "200":
+          description: Blueprint passes policy.
+        "400":
+          description: Invalid blueprint shape.
+        "422":
+          description: Blueprint shape is valid but policy blocks release.
+  /v1/preview:
+    post:
+      operationId: previewPlugin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PluginBlueprint"
+      responses:
+        "200":
+          description: Generated text artifacts preview.
+        "422":
+          description: Policy blocked generation.
+  /v1/package:
+    post:
+      operationId: packagePlugin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PluginBlueprint"
+      responses:
+        "200":
+          description: Deterministic plugin ZIP.
+          content:
+            application/zip:
+              schema:
+                type: string
+                contentEncoding: binary
+        "422":
+          description: Policy blocked generation.
+components:
+  schemas:
+    PluginBlueprint:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+        - version
+        - displayName
+        - shortDescription
+        - longDescription
+        - developerName
+        - category
+        - homepage
+        - supportUrl
+        - privacyPolicyUrl
+        - termsOfServiceUrl
+        - keywords
+        - brandColor
+        - brandColorDark
+        - defaultPrompts
+        - capabilities
+        - mcpServers
+        - skills
+        - review
+        - publication
+        - security
+      properties:
+        name:
+          type: string
+          pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        version:
+          type: string
+          pattern: "^\\d+\\.\\d+\\.\\d+$"
+        displayName:
+          type: string
+        shortDescription:
+          type: string
+        longDescription:
+          type: string
+        developerName:
+          type: string
+        developerEmail:
+          type: string
+          format: email
+        category:
+          type: string
+        homepage:
+          type: string
+          format: uri
+        repository:
+          type: string
+          format: uri
+        supportUrl:
+          type: string
+          format: uri
+        privacyPolicyUrl:
+          type: string
+          format: uri
+        termsOfServiceUrl:
+          type: string
+          format: uri
+        keywords:
+          type: array
+          items:
+            type: string
+        brandColor:
+          type: string
+        brandColorDark:
+          type: string
+        defaultPrompts:
+          type: array
+          items:
+            type: string
+        capabilities:
+          type: array
+          items:
+            type: string
+        mcpServers:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            additionalProperties: false
+            required: [name, url]
+            properties:
+              name:
+                type: string
+              url:
+                type: string
+                format: uri
+              transport:
+                type: string
+                const: streamable-http
+              auth:
+                type: string
+                enum: [none, oauth2.1, machine-key]
+        skills:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            additionalProperties: false
+            required: [name, description, instructions]
+            properties:
+              name:
+                type: string
+              description:
+                type: string
+              instructions:
+                type: string
+        review:
+          type: object
+        publication:
+          type: object
+        security:
+          type: object

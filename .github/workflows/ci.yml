@@ -1,0 +1,44 @@
+name: Factory CI
+
+on:
+  push:
+    branches: [main, "feat/**", "fix/**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install
+        run: npm install
+
+      - name: Typecheck
+        run: npm run check
+
+      - name: Tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Generate reference plugin
+        run: |
+          node dist/cli.js generate examples/gxeon-agent-gateway.blueprint.json --out /tmp/gxeon-generated
+          test -f /tmp/gxeon-generated/plugin.json
+          test -f /tmp/gxeon-generated/.codex-plugin/plugin.json
+          test -f /tmp/gxeon-generated/mcp.json
+          test -f /tmp/gxeon-generated/gxeon-agent-gateway-1.0.1.zip
+          unzip -l /tmp/gxeon-generated/gxeon-agent-gateway-1.0.1.zip
+
+      - name: Build production container
+        run: docker build -t xpex-plugin-factory:ci .

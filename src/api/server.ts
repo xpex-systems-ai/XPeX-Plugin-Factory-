@@ -1,4 +1,5 @@
 import express from "express";
+import { createGatewayMiddleware } from "@circle-fin/x402-batching";
 import { fileURLToPath } from "node:url";
 import { createX402Router } from "../commerce/x402.js";
 import { ZodError } from "zod";
@@ -71,6 +72,56 @@ app.post(
 );
 
 app.use(express.json({ limit: "1mb", strict: true }));
+
+const x402SellerAddress = process.env.XPEX_X402_SELLER_ADDRESS?.trim();
+const x402Gateway = x402SellerAddress
+  ? createGatewayMiddleware({ sellerAddress: x402SellerAddress })
+  : null;
+
+app.get("/v1/x402/status", (_req, res) => {
+  noStore(res);
+  res.json({
+    enabled: x402Gateway !== null,
+    provider: "Circle Gateway",
+    protocol: "x402",
+    priceUsd: "0.01",
+    route: "/v1/x402/agent-readiness",
+    moneyTruth:
+      "A 402 challenge is not revenue. Only provider-confirmed settlement counts as payment."
+  });
+});
+
+app.post(
+  "/v1/x402/agent-readiness",
+  (req, res, next) => {
+    if (!x402Gateway) {
+      res.status(503).json({ error: "X402_SELLER_NOT_CONFIGURED" });
+      return;
+    }
+    x402Gateway.require("$0.01")(req, res, next);
+  },
+  (req, res) => {
+    noStore(res);
+    try {
+      const result = generatePlugin(req.body);
+      res.status(result.report.valid ? 200 : 422).json({
+        paidService: "xpex-agent-readiness",
+        blueprint: {
+          name: result.blueprint.name,
+          version: result.blueprint.version,
+          displayName: result.blueprint.displayName
+        },
+        report: result.report
+      });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        res.status(400).json({ error: "INVALID_BLUEPRINT", issues: error.issues });
+        return;
+      }
+      res.status(500).json({ error: "X402_AGENT_READINESS_FAILED" });
+    }
+  }
+);
 app.use(createX402Router());
 // Serve only intentional public assets, including the MCP discovery document.
 app.use("/.well-known", express.static(fileURLToPath(new URL("../../public/.well-known", import.meta.url))));

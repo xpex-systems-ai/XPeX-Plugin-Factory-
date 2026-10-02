@@ -16,6 +16,7 @@ export type VerifiedFactoryPayment = {
   offerId: string | null;
   projectName: string | null;
   projectUrl: string | null;
+  projectBrief: string | null;
 };
 
 function parseStripeSignature(header: string): { timestamp: number; signatures: string[] } {
@@ -137,7 +138,8 @@ export function extractVerifiedFactoryPayment(event: unknown): VerifiedFactoryPa
         : null,
     offerId: offer?.id ?? null,
     projectName: readCustomField(session.custom_fields, "project_name"),
-    projectUrl: readCustomField(session.custom_fields, "project_url")
+    projectUrl: readCustomField(session.custom_fields, "project_url"),
+    projectBrief: readCustomField(session.custom_fields, "project_brief")
   };
 }
 

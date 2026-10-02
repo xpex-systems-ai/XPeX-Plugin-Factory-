@@ -25,3 +25,8 @@ jobs:
         env:
           FACTORY_BASE_URL: https://gxeon-agent-gateway-production.up.railway.app
         run: node scripts/live-smoke.mjs
+
+      - name: Verify production Factory and MCP Agent Kit
+        env:
+          FACTORY_URL: https://xpex-plugin-factory-production.up.railway.app
+        run: node scripts/production-smoke.mjs

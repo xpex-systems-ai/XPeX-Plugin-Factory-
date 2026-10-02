@@ -72,7 +72,7 @@ function blueprint() {
 }
 
 describe("XPeX Plugin Factory MCP", () => {
-  it("initializes and lists five no-auth read-only tools", async () => {
+  it("initializes and lists six no-auth read-only tools", async () => {
     const init = await handleFactoryMcp({
       jsonrpc: "2.0",
       id: 1,
@@ -90,13 +90,26 @@ describe("XPeX Plugin Factory MCP", () => {
     });
 
     const tools = (listed.body as any).result.tools;
-    expect(tools).toHaveLength(5);
+    expect(tools).toHaveLength(6);
     expect(tools.every((tool: any) => tool.annotations.readOnlyHint === true)).toBe(true);
     expect(
       tools.every((tool: any) =>
         tool.securitySchemes.some((scheme: any) => scheme.type === "noauth")
       )
     ).toBe(true);
+  });
+
+  it("lets a real MCP client discover the x402 offer without paying", async () => {
+    const response = await handleFactoryMcp({
+      jsonrpc: "2.0", id: 6, method: "tools/call",
+      params: { name: "xpex_factory_get_agent_kit_offer", arguments: {} }
+    });
+    const offer = (response.body as any).result.structuredContent;
+    expect(offer.endpoint).toMatch(/\/v1\/x402\/agent-kit$/);
+    expect(offer.openapi).toMatch(/\/openapi\.json$/);
+    expect(offer.price).toBe("0.01");
+    expect(offer.currency).toBe("USDC");
+    expect(offer.paymentInstructions).toContain("authorization");
   });
 
   it("returns live Factory offers without creating payment state", async () => {

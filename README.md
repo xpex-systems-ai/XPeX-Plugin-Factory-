@@ -158,3 +158,42 @@ Available tools:
 - `xpex_factory_compile_plugin`
 
 The MCP surface never publishes plugins and never mutates third-party systems. ZIP compilation is deterministic and returned as base64 for MCP clients that need a portable artifact.
+
+
+## Monetization V1
+
+The Factory sells three one-time implementation services through Stripe-hosted Payment Links:
+
+| Offer | Price | Purpose |
+| --- | ---: | --- |
+| Launch | R$ 197 | Blueprint review + validated plugin package |
+| Pro | R$ 497 | Custom MCP/skill architecture + review readiness |
+| Enterprise | R$ 1.497 | Advanced business integration architecture |
+
+Live sales surface:
+
+```text
+GET /pricing
+GET /v1/offers
+```
+
+The payment flow is intentionally fail-closed:
+
+```text
+Factory pricing page
+  -> Stripe LIVE hosted checkout
+  -> Stripe signed webhook
+  -> signature verification
+  -> payment_status == paid
+  -> verified payment event
+```
+
+A checkout page, quote, pending session, or internal record is never counted as revenue. Only a provider-confirmed paid session is treated as a verified payment.
+
+The production webhook endpoint is:
+
+```text
+POST /stripe/webhook
+```
+
+Configure `STRIPE_WEBHOOK_SECRET` only as a runtime secret.

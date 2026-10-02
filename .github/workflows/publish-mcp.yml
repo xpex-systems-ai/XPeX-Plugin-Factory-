@@ -1,0 +1,41 @@
+name: Publish Factory to MCP Registry
+on:
+  push:
+    branches: [main]
+    paths:
+      - server.json
+      - .github/workflows/publish-mcp.yml
+  workflow_dispatch:
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v5
+      - name: Wait for deployed MCP discovery tool
+        shell: bash
+        run: |
+          for attempt in {1..40}; do
+            if curl --fail --silent --show-error --max-time 15 \
+              -H 'Content-Type: application/json' \
+              -H 'Accept: application/json, text/event-stream' \
+              --data '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' \
+              https://xpex-plugin-factory-production.up.railway.app/mcp \
+              | grep -q 'xpex_factory_get_agent_kit_offer'; then
+              exit 0
+            fi
+            sleep 15
+          done
+          echo 'Agent Kit MCP tool not live; registry publication paused' >&2
+          exit 1
+      - name: Install official publisher
+        run: |
+          curl -fL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
+      - name: Authenticate with GitHub OIDC
+        run: ./mcp-publisher login github-oidc
+      - name: Validate and publish server metadata
+        run: |
+          ./mcp-publisher validate
+          ./mcp-publisher publish

@@ -235,3 +235,19 @@ Agents must never send private keys, seed phrases, API secrets, bearer tokens, o
 ## Agent API — USDC per call
 
 `POST /v1/x402/agent-kit` generates a deterministic read-only MCP/plugin starter kit for **0.01 USDC**. Deliverables: blueprint, files, policy report, ZIP and SHA-256. See [live configuration](https://xpex-plugin-factory-production.up.railway.app/v1/x402), [OpenAPI](https://xpex-plugin-factory-production.up.railway.app/openapi.json), and [integration/runbook](docs/AGENT-PAYMENTS.md). Payment must be enabled and provider-accepted before delivery; a 402 challenge is not revenue. Existing full-blueprint APIs remain free.
+
+
+## Agent-to-agent USDC (x402)
+
+An isolated Circle Gateway seller route is available for agent-native paid requests.
+
+```text
+GET  /v1/x402/status
+POST /v1/x402/agent-readiness
+```
+
+The paid route is fail-closed. Set `XPEX_X402_SELLER_ADDRESS` at runtime to the authorized seller address; when it is absent, the route returns `503 X402_SELLER_NOT_CONFIGURED`.
+
+The initial price is **$0.01 per request**. An unpaid request receives the x402 payment challenge from Circle Gateway middleware. The existing Stripe checkout and public MCP discovery surfaces remain separate.
+
+Money Truth: a 402 challenge, attempted payment, or generated response is not revenue. Count revenue only after provider-confirmed settlement.

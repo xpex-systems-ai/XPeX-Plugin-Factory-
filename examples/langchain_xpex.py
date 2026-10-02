@@ -7,9 +7,11 @@ This calls a free discovery tool; it never submits a payment signature.
 
 import asyncio
 
+import os
+
 from langchain.mcp import MCPAdapter
 
-MCP_URL = "https://xpex-plugin-factory-production.up.railway.app/mcp"
+MCP_URL = os.getenv("XPEX_MCP_URL", "https://xpex-plugin-factory-production.up.railway.app/mcp")
 OFFER_TOOL = "xpex_factory_get_agent_kit_offer"
 
 

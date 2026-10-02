@@ -30,3 +30,9 @@ jobs:
         env:
           FACTORY_URL: https://xpex-plugin-factory-production.up.railway.app
         run: node scripts/production-smoke.mjs
+
+      - name: Check official MCP Registry listing
+        run: |
+          curl -fsSL --max-time 20 \
+            'https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.xpex-systems-ai%2Fxpex-plugin-factory' \
+            | jq '{matching: [.servers[]? | select(.server.name == "io.github.xpex-systems-ai/xpex-plugin-factory") | {name: .server.name, version: .server.version, status: ._meta["io.modelcontextprotocol.registry/official"].status}]}'

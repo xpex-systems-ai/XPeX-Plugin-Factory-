@@ -63,6 +63,45 @@ record(
   }
 );
 
+const mcpTools = await postJson("/mcp", {
+  jsonrpc: "2.0", id: 10, method: "tools/list"
+});
+record(
+  "live_mcp_agent_kit_tool",
+  mcpTools.response.status === 200 &&
+    mcpTools.body?.result?.tools?.some(
+      (tool) => tool.name === "xpex_factory_get_agent_kit_offer"
+    ) === true,
+  {
+    status: mcpTools.response.status,
+    tools: mcpTools.body?.result?.tools?.map((tool) => tool.name)
+  }
+);
+
+const mcpOffer = await postJson("/mcp", {
+  jsonrpc: "2.0", id: 11, method: "tools/call",
+  params: { name: "xpex_factory_get_agent_kit_offer", arguments: {} }
+});
+const agentOffer = mcpOffer.body?.result?.structuredContent;
+record(
+  "live_agent_kit_offer",
+  mcpOffer.response.status === 200 &&
+    mcpOffer.body?.result?.isError === false &&
+    agentOffer?.enabled === true &&
+    agentOffer?.price === "0.01" &&
+    agentOffer?.currency === "USDC" &&
+    agentOffer?.network === "eip155:8453" &&
+    agentOffer?.endpoint === baseUrl + "/v1/x402/agent-kit",
+  {
+    status: mcpOffer.response.status,
+    enabled: agentOffer?.enabled,
+    price: agentOffer?.price,
+    currency: agentOffer?.currency,
+    network: agentOffer?.network,
+    endpoint: agentOffer?.endpoint
+  }
+);
+
 const schema = await getJson("/v1/schema");
 record(
   "schema",

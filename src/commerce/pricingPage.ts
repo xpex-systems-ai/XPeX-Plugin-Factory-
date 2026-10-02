@@ -9,6 +9,28 @@ function escapeHtml(value: string): string {
 }
 
 export function renderPricingPage(): string {
+  const canonicalUrl = "https://xpex-plugin-factory-production.up.railway.app/pricing";
+  const structuredData = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: "XPeX Plugin Factory",
+    provider: {
+      "@type": "Organization",
+      name: "XPeX Systems AI"
+    },
+    url: canonicalUrl,
+    serviceType: "Agent plugin, MCP and skill engineering",
+    areaServed: "Worldwide",
+    offers: FACTORY_OFFERS.map((offer) => ({
+      "@type": "Offer",
+      name: offer.name,
+      price: offer.priceBrl,
+      priceCurrency: "BRL",
+      url: offer.paymentUrl,
+      availability: "https://schema.org/InStock"
+    }))
+  }).replaceAll("<", "\\u003c");
+
   const cards = FACTORY_OFFERS.map((offer) => {
     const items = offer.includes
       .map((item) => "<li>" + escapeHtml(item) + "</li>")
@@ -31,7 +53,14 @@ export function renderPricingPage(): string {
     '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width,initial-scale=1">',
     '<title>XPeX Plugin Factory — Contrate sua integração de agentes</title>',
-    '<meta name="description" content="Transforme seu produto, API ou processo em uma experiência para agentes com plugin, MCP e skills.">',
+    '<meta name="description" content="Transforme seu produto, API ou processo em uma experiência para agentes com plugin, MCP e skills. Comece com Readiness Audit por R$49.">',
+    '<link rel="canonical" href="' + canonicalUrl + '">',
+    '<meta property="og:type" content="website">',
+    '<meta property="og:title" content="XPeX Plugin Factory — Agentes, MCP e Plugins">',
+    '<meta property="og:description" content="Readiness Audit a partir de R$49 e implementação de plugins, MCP e skills para agentes.">',
+    '<meta property="og:url" content="' + canonicalUrl + '">',
+    '<meta name="twitter:card" content="summary">',
+    '<script type="application/ld+json">' + structuredData + '</script>',
     '<style>',
     ':root{font-family:Inter,system-ui,sans-serif;background:#07101f;color:#fff}*{box-sizing:border-box}',
     'body{margin:0;background:radial-gradient(circle at 50% -10%,#142442 0,#07101f 46%)}',

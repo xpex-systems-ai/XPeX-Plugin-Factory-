@@ -2,6 +2,10 @@ import express from "express";
 import { ZodError } from "zod";
 import { generatePlugin, assertGenerationReady } from "../factory/generate.js";
 import { packagePlugin } from "../factory/package.js";
+import {
+  getFactoryMcpDescriptor,
+  handleFactoryMcp
+} from "../mcp/handler.js";
 
 const app = express();
 const port = Number(process.env.PORT ?? 8080);
@@ -18,9 +22,25 @@ app.get("/health", (_req, res) => {
   res.json({
     ok: true,
     service: "xpex-plugin-factory",
-    version: "0.1.0",
+    version: "0.2.0",
     environment: process.env.XPEX_FACTORY_ENV ?? "development"
   });
+});
+
+app.get("/mcp", (_req, res) => {
+  noStore(res);
+  res.json(getFactoryMcpDescriptor());
+});
+
+app.post("/mcp", async (req, res) => {
+  noStore(res);
+  const result = await handleFactoryMcp(req.body);
+  res.status(result.status);
+  if (result.body === null) {
+    res.end();
+    return;
+  }
+  res.json(result.body);
 });
 
 app.get("/v1/schema", (_req, res) => {
@@ -31,7 +51,8 @@ app.get("/v1/schema", (_req, res) => {
     endpoints: {
       validate: "POST /v1/validate",
       preview: "POST /v1/preview",
-      package: "POST /v1/package"
+      package: "POST /v1/package",
+      mcp: "POST /mcp"
     },
     note: "Secrets must never be placed in a blueprint."
   });
@@ -133,7 +154,8 @@ app.get("/", (_req, res) => {
       '<div class="grid"><div class="card"><b>01 Blueprint</b><p>Typed product, MCP, skill, review and security contract.</p></div>' +
       '<div class="card"><b>02 Guardrails</b><p>Secret scanning, HTTPS, auth checks and approval gates.</p></div>' +
       '<div class="card"><b>03 Generate</b><p>Plugin manifests, MCP configs, skills, icon and docs.</p></div>' +
-      '<div class="card"><b>04 Ship</b><p><code>/v1/validate</code> → <code>/v1/preview</code> → <code>/v1/package</code>.</p></div></div>' +
+      '<div class="card"><b>04 Agentic</b><p>Agents can use the factory itself through <code>/mcp</code>.</p></div>' +
+      '<div class="card"><b>05 Ship</b><p><code>/v1/validate</code> → <code>/v1/preview</code> → <code>/v1/package</code>.</p></div></div>' +
       '</main></body></html>'
   );
 });

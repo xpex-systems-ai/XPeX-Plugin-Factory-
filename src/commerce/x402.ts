@@ -115,10 +115,10 @@ export function createX402Router(env: NodeJS.ProcessEnv = process.env) {
     void gateway!.require(`$${AGENT_KIT_PRICE}`)(req, res, next);
   }, (req, res) => {
     const payment = (req as PaymentRequest).payment;
-    if (!payment?.verified || !payment.transaction || payment.amount !== "10000" || payment.network !== config?.network) {
+    if (!payment?.verified || payment.amount !== "10000" || payment.network !== config?.network) {
       res.status(503).json({ error: "PAYMENT_RECEIPT_UNAVAILABLE" }); return;
     }
-    console.log(JSON.stringify({ type: "xpex.factory.x402.accepted", mode: config.mode, amount: payment.amount, currency: "USDC", network: payment.network, transaction: payment.transaction, artifactSha256: res.locals.agentKit.archive.sha256 }));
+    console.log(JSON.stringify({ type: "xpex.factory.x402.accepted", mode: config.mode, amount: payment.amount, currency: "USDC", network: payment.network, transaction: payment.transaction ?? null, artifactSha256: res.locals.agentKit.archive.sha256 }));
     res.json({ ...res.locals.agentKit, payment: { status: "gateway_accepted", mode: config.mode, ...payment } });
   });
   return router;

@@ -1,6 +1,6 @@
 {
   "name": "@xpex/plugin-factory",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": false,
   "description": "Industrial OpenAI/Codex plugin, MCP and skill factory by XPeX Systems AI.",
   "type": "module",

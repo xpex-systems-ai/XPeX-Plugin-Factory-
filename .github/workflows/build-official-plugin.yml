@@ -1,0 +1,45 @@
+name: Build Official Factory Plugin
+
+on:
+  pull_request:
+    paths:
+      - "examples/xpex-plugin-factory.blueprint.json"
+      - "src/**"
+      - "package.json"
+      - ".github/workflows/build-official-plugin.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-plugin:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install
+        run: npm install
+
+      - name: Build factory
+        run: npm run build
+
+      - name: Compile official plugin
+        run: |
+          mkdir -p /tmp/xpex-factory-plugin
+          node dist/cli.js generate             examples/xpex-plugin-factory.blueprint.json             --out /tmp/xpex-factory-plugin
+          test -f /tmp/xpex-factory-plugin/xpex-plugin-factory-1.0.0.zip
+          unzip -t /tmp/xpex-factory-plugin/xpex-plugin-factory-1.0.0.zip
+
+      - name: Upload official plugin artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: xpex-plugin-factory-1.0.0
+          path: /tmp/xpex-factory-plugin/xpex-plugin-factory-1.0.0.zip
+          if-no-files-found: error
+          retention-days: 30

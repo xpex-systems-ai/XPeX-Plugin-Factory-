@@ -16,7 +16,8 @@
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "factory": "tsx src/cli.ts"
+    "factory": "tsx src/cli.ts",
+    "smoke:production": "node scripts/production-smoke.mjs"
   },
   "engines": {
     "node": ">=22"

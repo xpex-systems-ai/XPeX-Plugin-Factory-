@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import JSZip from "jszip";
 
 const baseUrl = (process.env.FACTORY_URL ??
-  "https://gxeon-agent-gateway-production.up.railway.app"
+  "https://xpex-plugin-factory-production.up.railway.app"
 ).replace(/\/$/, "");
 
 const blueprint = JSON.parse(

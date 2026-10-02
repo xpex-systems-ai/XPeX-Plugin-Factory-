@@ -131,3 +131,14 @@ PRIVATE / WORKSPACE / REVIEW PIPELINE
 ```
 
 Built by **XPeX Systems AI**.
+
+
+## Production
+
+Factory V1 is live at:
+
+```text
+https://xpex-plugin-factory-production.up.railway.app
+```
+
+Health: `/health` · Schema: `/v1/schema` · Validate: `POST /v1/validate` · Preview: `POST /v1/preview` · Package: `POST /v1/package`

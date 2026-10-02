@@ -5,9 +5,11 @@ Run:     python examples/crewai_xpex.py
 Pass the selected `offer` tool in an Agent(tools=[offer], ...) inside your crew.
 """
 
+import os
+
 from crewai_tools import MCPServerAdapter
 
-MCP_URL = "https://xpex-plugin-factory-production.up.railway.app/mcp"
+MCP_URL = os.getenv("XPEX_MCP_URL", "https://xpex-plugin-factory-production.up.railway.app/mcp")
 OFFER_TOOL = "xpex_factory_get_agent_kit_offer"
 
 

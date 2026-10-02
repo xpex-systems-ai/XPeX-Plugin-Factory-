@@ -144,6 +144,30 @@ app.post("/v1/package", async (req, res) => {
   }
 });
 
+app.get("/plugin", (_req, res) => {
+  res.type("html").send(
+    '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>XPeX Plugin Factory</title></head><body style="font-family:system-ui;background:#0B1220;color:#fff;margin:0;padding:64px"><main style="max-width:900px;margin:auto"><div style="color:#FF7A00">XPEX SYSTEMS AI // OFFICIAL PLUGIN</div><h1 style="font-size:56px">XPeX Plugin Factory</h1><p style="color:#b8c4d8;font-size:18px;line-height:1.6">Compile validated blueprints into OpenAI/Codex plugin manifests, MCP configuration, skills, review metadata, and deterministic ZIP artifacts. The public factory plugin performs computation only and never publishes a plugin or mutates external systems.</p><p><a style="color:#00D4FF" href="/privacy">Privacy</a> · <a style="color:#00D4FF" href="/terms">Terms</a> · <a style="color:#00D4FF" href="/support">Support</a></p></main></body></html>'
+  );
+});
+
+app.get("/privacy", (_req, res) => {
+  res.type("html").send(
+    '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>XPeX Plugin Factory Privacy</title></head><body style="font-family:system-ui;background:#0B1220;color:#fff;margin:0;padding:64px"><main style="max-width:800px;margin:auto"><h1>Privacy Notice</h1><p>The public XPeX Plugin Factory accepts plugin blueprints for validation, preview, and deterministic compilation. Blueprints must not contain passwords, API keys, private keys, seed phrases, session cookies, or bearer credentials.</p><p>The service may process standard operational metadata such as request timestamps, response status, and security logs required to operate and protect the service. The public factory plugin does not publish generated plugins or connect to customer accounts.</p><p>Operator: XPeX Systems AI. Last updated: October 2, 2026.</p></main></body></html>'
+  );
+});
+
+app.get("/terms", (_req, res) => {
+  res.type("html").send(
+    '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>XPeX Plugin Factory Terms</title></head><body style="font-family:system-ui;background:#0B1220;color:#fff;margin:0;padding:64px"><main style="max-width:800px;margin:auto"><h1>Terms of Use</h1><p>XPeX Plugin Factory generates software artifacts from user-provided blueprints. Generated files require review before deployment or public submission. The factory does not guarantee approval by any third-party platform.</p><p>Do not submit credentials, confidential secrets, private keys, seed phrases, payment secrets, or session cookies. Users remain responsible for authorization, legal compliance, external service terms, and final release decisions.</p><p>Operator: XPeX Systems AI. Last updated: October 2, 2026.</p></main></body></html>'
+  );
+});
+
+app.get("/support", (_req, res) => {
+  res.type("html").send(
+    '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>XPeX Plugin Factory Support</title></head><body style="font-family:system-ui;background:#0B1220;color:#fff;margin:0;padding:64px"><main style="max-width:800px;margin:auto"><h1>Support</h1><p>For source, examples, and issue tracking, use the official XPeX Plugin Factory repository.</p><p><a style="color:#00D4FF" href="https://github.com/xpex-systems-ai/XPeX-Plugin-Factory-">GitHub repository</a></p><p>Never include passwords, API keys, private keys, seed phrases, Stripe secrets, or session cookies in support requests.</p></main></body></html>'
+  );
+});
+
 app.get("/", (_req, res) => {
   res.type("html").send(
     '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +

@@ -58,6 +58,8 @@ Endpoints:
 ```text
 GET  /health
 GET  /v1/schema
+GET  /mcp
+POST /mcp
 POST /v1/validate
 POST /v1/preview
 POST /v1/package
@@ -142,3 +144,17 @@ https://xpex-plugin-factory-production.up.railway.app
 ```
 
 Health: `/health` · Schema: `/v1/schema` · Validate: `POST /v1/validate` · Preview: `POST /v1/preview` · Package: `POST /v1/package`
+
+
+## Agent-native factory access
+
+Factory V0.2 exposes a no-auth, computation-only MCP endpoint at `/mcp`.
+
+Available tools:
+
+- `xpex_factory_get_schema`
+- `xpex_factory_validate_blueprint`
+- `xpex_factory_preview_plugin`
+- `xpex_factory_compile_plugin`
+
+The MCP surface never publishes plugins and never mutates third-party systems. ZIP compilation is deterministic and returned as base64 for MCP clients that need a portable artifact.

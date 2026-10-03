@@ -94,7 +94,7 @@ describe("x402 seller gate (simulated Circle provider; no funds)", () => {
     const challenge = JSON.parse(Buffer.from(response.headers.get("payment-required")!, "base64").toString());
     expect(challenge.accepts).toHaveLength(1);
     expect(challenge.accepts[0]).toMatchObject({ amount: "10000", payTo: seller, network, asset, scheme: "exact" });
-    expect(await response.json()).toEqual({});
+    expect(await response.json()).toEqual(challenge);
     expect(providerCalls.map((call) => call.url)).toEqual(["https://gateway-api.circle.com/v1/x402/supported"]);
   });
   it("lets an unauthenticated empty discovery probe inspect the 402 without a kit", async () => {

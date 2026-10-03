@@ -117,6 +117,22 @@ export function createX402Router(env: NodeJS.ProcessEnv = process.env) {
       res.status(503).json({ error: "AGENT_KIT_PREPARATION_FAILED" });
     }
   }, (req, res, next) => {
+    // Some public directories inspect the JSON body instead of the v2 header.
+    // Mirror only the SDK's empty challenge response, using its exact terms.
+    const end = res.end.bind(res);
+    res.end = ((...args: any[]) => {
+      const required = res.getHeader("PAYMENT-REQUIRED");
+      if (res.statusCode === 402 && typeof required === "string" && String(args[0]) === "{}") {
+        try {
+          const challenge = JSON.parse(Buffer.from(required, "base64").toString("utf8"));
+          if (challenge.x402Version === 2 && Array.isArray(challenge.accepts)) {
+            args[0] = JSON.stringify(challenge);
+            res.removeHeader("Content-Length");
+          }
+        } catch { /* Preserve the SDK response if the header cannot be decoded. */ }
+      }
+      return end(...args as Parameters<typeof end>);
+    }) as typeof res.end;
     // No grant-access or recovery hooks: only provider-accepted payments pass.
     void gateway!.require(`$${AGENT_KIT_PRICE}`)(req, res, next);
   }, (req, res) => {

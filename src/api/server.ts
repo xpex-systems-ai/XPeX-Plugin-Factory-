@@ -16,6 +16,10 @@ import {
   getFactoryMcpDescriptor,
   handleFactoryMcp
 } from "../mcp/handler.js";
+import {
+  getEnterpriseMcpDescriptor,
+  handleEnterpriseMcp
+} from "../enterprise/handler.js";
 
 const app = express();
 const port = Number(process.env.PORT ?? 8080);
@@ -101,6 +105,22 @@ app.get("/mcp", (_req, res) => {
 app.post("/mcp", async (req, res) => {
   noStore(res);
   const result = await handleFactoryMcp(req.body);
+  res.status(result.status);
+  if (result.body === null) {
+    res.end();
+    return;
+  }
+  res.json(result.body);
+});
+
+app.get("/enterprise/mcp", (_req, res) => {
+  noStore(res);
+  res.json(getEnterpriseMcpDescriptor());
+});
+
+app.post("/enterprise/mcp", async (req, res) => {
+  noStore(res);
+  const result = await handleEnterpriseMcp(req.body);
   res.status(result.status);
   if (result.body === null) {
     res.end();

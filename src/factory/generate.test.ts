@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { generatePlugin } from "./generate.js";
 import { packagePlugin } from "./package.js";
 import type { PluginBlueprint } from "../domain/blueprint.js";
@@ -126,5 +126,18 @@ describe("XPeX Plugin Factory", () => {
 
     expect(first.equals(second)).toBe(true);
     expect(first.length).toBeGreaterThan(500);
+  });
+
+  it("preserves identical archive bytes across different compilation dates", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      vi.setSystemTime(new Date("2026-10-10T00:00:00Z"));
+      const first = await packagePlugin(generatePlugin(blueprint()));
+      vi.setSystemTime(new Date("2027-02-15T17:45:12Z"));
+      const second = await packagePlugin(generatePlugin(blueprint()));
+      expect(first.equals(second)).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

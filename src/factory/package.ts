@@ -6,7 +6,10 @@ export async function packagePlugin(result: GenerationResult): Promise<Buffer> {
 
   for (const file of [...result.files].sort((a, b) => a.path.localeCompare(b.path))) {
     zip.file(file.path, file.content, {
-      date: new Date("2026-01-01T00:00:00.000Z")
+      date: new Date("2026-01-01T00:00:00.000Z"),
+      // Implicit parent directories otherwise receive the current clock time.
+      // File paths are sufficient for extraction to recreate the directories.
+      createFolders: false
     });
   }
 
